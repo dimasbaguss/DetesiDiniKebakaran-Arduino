@@ -3,25 +3,27 @@
 #include <FirebaseESP32.h>
 #include <WiFi.h>
 
-#define WIFI_SSID "Workshop_AP"
+#define WIFI_SSID "untan"
 #define WIFI_PASSWORD ""
 #define FIREBASE_HOST "deteksi-dini-kebakaran-49169-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "AIzaSyDGXyuMff5dbI7te0X4IuyfcQfCsomjZp8"
-
 #define DHTPIN 5
 #define DHTTYPE DHT22
 #define MAXTEMP 40
+
 #define RL 10       // Resistance Load
 #define m -0.44953  // Gradien
 #define b 1.23257   // Titik perpotongan
-#define Ro 4.51     // Resistansi udara bersih
+#define Ro 17.58     // Resistansi udara bersih
 
 DHT dht(DHTPIN, DHTTYPE);
+
 int fire_digital = 4;
 int smoke_analog = 32;
 int buzzer = 15;
 int water_pump = 19;
-int batas = 400;
+int batas = 300;
+
 FirebaseData firebaseData;
 
 void setup() {
@@ -54,13 +56,11 @@ void loop() {
   Serial.println(nilai_api);
 
   // Kalibrasi sensor gas
-  float VRL = analogRead(nilai_gas) * (3.3/4095.0);
-  float Rs = ((3.3*RL)/VRL)-RL;
-  float ratio = Rs/Ro;
-  float gas_ppm = pow(10, ((log10(ratio)-b)/m));
+  float VRL = analogRead(smoke_analog) * (5.0 / 4095.0);
+  float Rs = ((5.0 * RL) / VRL) - RL;
+  float ratio = Rs / Ro;
+  float gas_ppm = pow(10, ((log10(ratio) - b) / m));
 
-  Serial.print("Rs/Ro: ");
-  Serial.print(ratio); 
   Serial.print("Gas: ");
   Serial.print(gas_ppm);
   Serial.println(" PPM");
